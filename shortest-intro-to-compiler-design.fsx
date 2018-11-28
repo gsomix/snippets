@@ -30,8 +30,8 @@ let trans ir =
         | Push value -> 
             yield sprintf "st[sp] = %d;" value
             yield "sp += 1;"
-        | Op sym -> 
-            yield sprintf "st[sp - 2] = st[sp - 2] %s st[sp - 1];" sym
+        | Op op -> 
+            yield sprintf "st[sp - 2] = st[sp - 2] %s st[sp - 1];" op
             yield "sp -= 1;" 
     ] |> String.concat "\n"
 
@@ -39,4 +39,25 @@ let rpnToC source =
     let code = source |> scan |> trans
     String.Format(C_CODE, ST_SIZE, code)
 
-printfn "%s" (rpnToC "2 2 + 3 -") // 2 + 2 - 3
+printfn "%s" (rpnToC "2 2 + 3 -") // 2 + 2 - 3 = 1
+
+(* Output:
+
+#include <stdio.h>
+int main(int argc, char** argv) {
+    int st[100], sp = 0;
+    st[sp] = 2;
+    sp += 1;
+    st[sp] = 2;
+    sp += 1;
+    st[sp - 2] = st[sp - 2] + st[sp - 1];
+    sp -= 1;
+    st[sp] = 3;
+    sp += 1;
+    st[sp - 2] = st[sp - 2] - st[sp - 1];
+    sp -= 1;
+    printf("%d\n", st[sp - 1]);
+    return 0;
+}
+
+*)
