@@ -20,7 +20,7 @@ let scan (source: string) =
     let tokens = source.Split ' '
     [ for x in tokens -> 
         if Char.IsDigit x.[0] then
-            Push (int(x))
+            Push (int x)
         else
             Op x 
     ]
