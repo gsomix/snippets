@@ -20,10 +20,10 @@ type IR =
 
 type Env = {
     stack: string list
-    name_cnt: int
+    nameCounter: int
 }
 
-let emptyEnv = { stack = []; name_cnt = 0 }
+let emptyEnv = { stack = []; nameCounter = 0 }
 
 let scan (source: string) =
     let tokens = source.Split ' '
@@ -37,21 +37,20 @@ let scan (source: string) =
 let trans (ir: IR list) =
     let transInstr (env: Env, code: StringBuilder) = function
     | Push value -> 
-        let code = code.AppendLine (sprintf "int t%d = %d;" env.name_cnt value)
-        let stack = (sprintf "t%d" env.name_cnt) :: env.stack
-        { env with stack = stack; name_cnt = env.name_cnt + 1}, code
+        let code = code.AppendLine (sprintf "int t%d = %d;" env.nameCounter value)
+        let stack = (sprintf "t%d" env.nameCounter) :: env.stack
+        { env with stack = stack; nameCounter = env.nameCounter + 1}, code
     | Op op -> 
-        let (a :: b :: stack) = env.stack
-        let code = code.AppendLine (sprintf "int t%d = %s %s %s;" env.name_cnt b op a)
-        let stack = (sprintf "t%d" env.name_cnt) :: stack
-        { env with stack = stack; name_cnt = env.name_cnt + 1}, code
+        let (leftOperand :: rightOperand :: stack) = env.stack
+        let code = code.AppendLine (sprintf "int t%d = %s %s %s;" env.nameCounter rightOperand op leftOperand)
+        let stack = (sprintf "t%d" env.nameCounter) :: stack
+        { env with stack = stack; nameCounter = env.nameCounter + 1}, code
 
-    let env, code = ir |> List.fold transInstr (emptyEnv, StringBuilder())
-    code, List.head env.stack
+    ir |> List.fold transInstr (emptyEnv, StringBuilder())
 
 let rpnToC (source: string) = 
-    let code, lastVar = source |> scan |> trans
-    String.Format(C_CODE, code, lastVar)
+    let env, code = source |> scan |> trans
+    String.Format(C_CODE, code, env.stack.Head)
 
 printfn "%s" (rpnToC "2 2 + 3 -") // 2 + 2 - 3 = 1
 
