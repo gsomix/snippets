@@ -34,7 +34,7 @@ let scan (source: string) =
             Op x 
     ]
 
-let trans ir =
+let trans (ir: IR list) =
     let transInstr (env: Env, code: StringBuilder) = function
     | Push value -> 
         let code = code.AppendLine (sprintf "int t%d = %d;" env.name_cnt value)
@@ -49,7 +49,7 @@ let trans ir =
     let env, code = ir |> List.fold transInstr (emptyEnv, StringBuilder())
     code, List.head env.stack
 
-let rpnToC source = 
+let rpnToC (source: string) = 
     let code, lastVar = source |> scan |> trans
     String.Format(C_CODE, code, lastVar)
 

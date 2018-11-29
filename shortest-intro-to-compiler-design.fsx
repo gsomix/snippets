@@ -25,7 +25,7 @@ let scan (source: string) =
             Op x 
     ]
 
-let trans ir =
+let trans (ir: IR list) =
     [ for instr in ir do
         match instr with
         | Push value -> 
@@ -36,7 +36,7 @@ let trans ir =
             yield "sp -= 1;" 
     ] |> String.concat "\n"
 
-let rpnToC source = 
+let rpnToC (source: string) = 
     let code = source |> scan |> trans
     String.Format(C_CODE, ST_SIZE, code)
 
