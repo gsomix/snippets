@@ -17,12 +17,13 @@ type IR =
     | Op of string
 
 let scan (source: string) =
-    let tokens = source.Split [|' '|]
+    let tokens = source.Split ' '
     [ for x in tokens -> 
         if Char.IsDigit x.[0] then
             Push (int(x))
         else
-            Op x ]
+            Op x 
+    ]
 
 let trans ir =
     [ for instr in ir do

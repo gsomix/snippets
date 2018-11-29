@@ -26,12 +26,13 @@ type Env = {
 let emptyEnv = { stack = []; name_cnt = 0 }
 
 let scan (source: string) =
-    let tokens = source.Split [|' '|]
+    let tokens = source.Split ' '
     [ for x in tokens -> 
         if Char.IsDigit x.[0] then
             Push (int(x))
         else
-            Op x ]
+            Op x 
+    ]
 
 let trans ir =
     let transInstr (env: Env, code: StringBuilder) = function
