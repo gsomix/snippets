@@ -34,7 +34,7 @@ let scan (source: string) =
             Op x ]
 
 let trans ir =
-    let folder (env: Env, code: StringBuilder) = function
+    let transInstr (env: Env, code: StringBuilder) = function
     | Push value -> 
         let code = code.AppendLine (sprintf "int t%d = %d;" env.name_cnt value)
         let stack = (sprintf "t%d" env.name_cnt) :: env.stack
@@ -45,12 +45,12 @@ let trans ir =
         let stack = (sprintf "t%d" env.name_cnt) :: stack
         { env with stack = stack; name_cnt = env.name_cnt + 1}, code
 
-    let env, code = ir |> List.fold folder (emptyEnv, StringBuilder())
+    let env, code = ir |> List.fold transInstr (emptyEnv, StringBuilder())
     code, List.head env.stack
 
 let rpnToC source = 
-    let code, var = source |> scan |> trans
-    String.Format(C_CODE, code, var)
+    let code, lastVar = source |> scan |> trans
+    String.Format(C_CODE, code, lastVar)
 
 printfn "%s" (rpnToC "2 2 + 3 -") // 2 + 2 - 3 = 1
 
